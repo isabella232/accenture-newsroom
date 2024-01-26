@@ -11,7 +11,6 @@ import {
   getMetadata,
   loadScript,
   fetchPlaceholders,
-  toCamelCase,
 } from '../../scripts/lib-franklin.js';
 import {
   ANALYTICS_LINK_TYPE_DOWNLOADABLE,
@@ -22,6 +21,7 @@ import {
   ANALYTICS_MODULE_SHARE,
   ANALYTICS_MODULE_SUBJECT_TAGS,
   ANALYTICS_TEMPLATE_ZONE_RIGHT_RAIL,
+  INVALID_TAG_ERROR,
 } from '../../scripts/constants.js';
 
 async function generatePDF(pageName) {
@@ -52,14 +52,42 @@ async function generatePDF(pageName) {
  * @param {*} defaultValue
  * @returns
  */
-function getTagTitle(tagName, placeholders, defaultValue) {
-  const camelCaseTagName = toCamelCase(tagName);
-  const tagTitle = getPlaceholder(camelCaseTagName, placeholders);
-  if (tagTitle === camelCaseTagName) {
-    return defaultValue;
+
+const getTaxonomy = async () => {
+  const resp = await fetch('/tags.json');
+  const tagsJson = await resp.json();
+  return tagsJson.data;
+};
+
+const getTagTitleHandler = (sTag, oTaxonomy) => {
+  const sDomain = window.location.origin;
+
+  for (let i = 0; i < oTaxonomy.length; i += 1) {
+    if (oTaxonomy[i].value === sTag) {
+      return { tagTitle: oTaxonomy[i].text, valid: true };
+    }
   }
-  return tagTitle;
-}
+
+  if (!sDomain.includes('https://newsroom')) {
+    const sInvalidTag = `${sTag} ${INVALID_TAG_ERROR}`;
+    return { tagTitle: sInvalidTag, valid: false };
+  }
+
+  return { tagTitle: sTag, valid: true };
+};
+
+const getReduceTags = (oTaxonomy, sCategory) => {
+  const sCategoryCapital = sCategory.charAt(0).toUpperCase() + sCategory.slice(1);
+  return oTaxonomy.reduce((oAccumulated, oObject) => {
+    // eslint-disable-next-line no-unused-expressions
+    oAccumulated[sCategory] || (oAccumulated[sCategory] = []);
+    oAccumulated[sCategory].push({
+      value: oObject[`${sCategoryCapital} Value`],
+      text: oObject[`${sCategoryCapital} Text`],
+    });
+    return oAccumulated;
+  }, {});
+};
 
 function getPrefixForTags(siteName, category) {
   const siteNamePrefixMapping = {
@@ -194,7 +222,34 @@ export default async function decorate(block) {
     });
   }
 
+  // Create Tags Elements
+  const createTagsHandler = (
+    sClassTag,
+    sTagValues,
+    aTagsCollection,
+    sPrefix,
+    oTagUL,
+    sAnalyticsModuleName,
+  ) => {
+    sTagValues.split(',').forEach((sTag) => {
+      const oTagTile = getTagTitleHandler(sTag.trim(), aTagsCollection);
+      const cleanedUpValue = sanitizeName(sTag);
+      const link = createEl('a', { href: `${sPrefix}/${cleanedUpValue}`, class: `${oTagTile.valid ? '' : 'invalid-tag'}` }, oTagTile.tagTitle.trim());
+      annotateElWithAnalyticsTracking(
+        link,
+        link.textContent,
+        sAnalyticsModuleName,
+        ANALYTICS_TEMPLATE_ZONE_RIGHT_RAIL,
+        ANALYTICS_LINK_TYPE_ENGAGEMENT,
+      );
+      createEl('li', { class: sClassTag }, link, oTagUL);
+    });
+  };
+
   // Tags
+  const oTaxonomy = await getTaxonomy();
+  const aSubjectsTagsCollection = getReduceTags(oTaxonomy, 'subjects').subjects || [];
+  const aIndustriesTagsCollection = getReduceTags(oTaxonomy, 'industries').industries || [];
   const industryTagValues = getMetadata('industries');
   const subjectTagValues = getMetadata('subjects');
   const industryEl = industryTagValues ? createEl('div', { class: 'industry' }, `<h4>${pIndustryTags}</h4>`) : null;
@@ -204,32 +259,10 @@ export default async function decorate(block) {
   const subjectsPrefix = getPrefixForTags(siteName, 'subjects');
 
   const industryUl = industryEl ? createEl('ul', {}, '', industryEl) : null;
-  industryTagValues.split(',').forEach((industryTag) => {
-    const cleanedUpValue = sanitizeName(industryTag);
-    const link = createEl('a', { href: `${industriesPrefix}/${cleanedUpValue}` }, getTagTitle(cleanedUpValue, placeholders, industryTag.trim()));
-    annotateElWithAnalyticsTracking(
-      link,
-      link.textContent,
-      ANALYTICS_MODULE_INDUSTRY_TAGS,
-      ANALYTICS_TEMPLATE_ZONE_RIGHT_RAIL,
-      ANALYTICS_LINK_TYPE_ENGAGEMENT,
-    );
-    createEl('li', { class: 'industry-tag' }, link, industryUl);
-  });
+  createTagsHandler('industry-tag', industryTagValues, aIndustriesTagsCollection, industriesPrefix, industryUl, ANALYTICS_MODULE_INDUSTRY_TAGS);
 
   const subjectUl = subjectEl ? createEl('ul', {}, '', subjectEl) : null;
-  subjectTagValues.split(',').forEach((subjectTag) => {
-    const cleanedUpValue = sanitizeName(subjectTag);
-    const link = createEl('a', { href: `${subjectsPrefix}/${cleanedUpValue}` }, getTagTitle(cleanedUpValue, placeholders, subjectTag.trim()));
-    annotateElWithAnalyticsTracking(
-      link,
-      link.textContent,
-      ANALYTICS_MODULE_SUBJECT_TAGS,
-      ANALYTICS_TEMPLATE_ZONE_RIGHT_RAIL,
-      ANALYTICS_LINK_TYPE_ENGAGEMENT,
-    );
-    createEl('li', { class: 'subject-tag' }, link, subjectUl);
-  });
+  createTagsHandler('subject-tag', subjectTagValues, aSubjectsTagsCollection, subjectsPrefix, subjectUl, ANALYTICS_MODULE_SUBJECT_TAGS);
 
   const tags = createEl('div', { class: 'tags' });
   if (industryEl) {

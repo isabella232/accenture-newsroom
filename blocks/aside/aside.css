@@ -67,6 +67,10 @@
   padding-left: unset;
 }
 
+.aside .tags li .invalid-tag {
+  color: #f00;
+}
+
 .aside .tags li:not(:last-of-type)::after {
   content: "\25CF";
   font-size: 14px;

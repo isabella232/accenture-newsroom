@@ -59,3 +59,4 @@ export const ANALYTICS_LINK_TYPE_SHARE_INTENT = 'share intent';
 export const ANALYTICS_LINK_TYPE_DOWNLOADABLE = 'downloadable';
 export const ANALYTICS_LINK_TYPE_CTA = 'cta';
 export const ANALYTICS_LINK_TYPE_FOOTER = 'footer';
+export const INVALID_TAG_ERROR = '(Tag does not exist. Use the tagger to input an existing tag.)';

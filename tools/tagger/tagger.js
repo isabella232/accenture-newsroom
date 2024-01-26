@@ -46,7 +46,7 @@ function initTaxonomy(taxonomy) {
 }
 
 async function getTaxonomy() {
-  const resp = await fetch('/new-tags.json');
+  const resp = await fetch('/tags.json');
   const tagsJson = await resp.json();
   return tagsJson.data;
 }
