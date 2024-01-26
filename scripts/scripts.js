@@ -855,7 +855,7 @@ const publishConfirmationPopUp = (oPublishButtons) => {
         // eslint-disable-next-line no-alert
         alert(`Publishing Error: Unable to publish page. Invalid tags detected. Please review and correct the tags before attempting to publish again.\nContent Date is ${getContentDate()}\n`);
         e.stopImmediatePropagation();
-        return false;
+        return;
       }
       // eslint-disable-next-line no-restricted-globals, no-alert
       if (confirm(` Are you sure you want to publish this content live?\n Content Date is ${getContentDate()}`)) {
@@ -864,7 +864,6 @@ const publishConfirmationPopUp = (oPublishButtons) => {
       } else {
         // avoid publishing
         e.stopImmediatePropagation();
-        return false;
       }
     });
   });
