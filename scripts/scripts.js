@@ -922,6 +922,7 @@ const helixSideKickObserver = () => {
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
+  helixSideKickObserver();
   await setCSP();
   const main = doc.querySelector('main');
   await loadBlocks(main);
@@ -937,7 +938,6 @@ async function loadLazy(doc) {
   loadFonts();
 
   centerArticleDivider(main);
-  helixSideKickObserver();
 
   sampleRUM('lazy');
   sampleRUM.observe(main.querySelectorAll('div[data-block-name]'));
