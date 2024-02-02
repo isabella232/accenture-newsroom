@@ -154,10 +154,18 @@ export function createTag(tag, attributes, html) {
   return el;
 }
 
+const isCloudFront = () => {
+  const sHostOrigin = window.location.origin;
+  return sHostOrigin.includes('https://newsroom');
+};
+
 /**
  * Sets the Content-Security-Policy meta tag to the document based on JSON file
  */
 async function setCSP() {
+  if (isCloudFront()) {
+    return;
+  }
   const resp = await fetch(`${window.hlx.codeBasePath}/scripts/csp.json`);
   const json = await resp.json();
   const directives = Object.keys(json);
