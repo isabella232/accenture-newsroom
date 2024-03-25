@@ -9,6 +9,7 @@ import {
   getPlaceholder,
   getCountry,
   getDateLocales,
+  validateInputDate,
 } from '../../scripts/scripts.js';
 import {
   ANALYTICS_MODULE_SEARCH,
@@ -390,8 +391,8 @@ export default async function decorate(block) {
   const limit = 10;
   // get request parameter page as limit
   const usp = new URLSearchParams(window.location.search);
-  const fromDate = usp.get('from_date');
-  const toDate = usp.get('to_date');
+  const fromDate = validateInputDate(usp.get('from_date'));
+  const toDate = validateInputDate(usp.get('to_date'));
   const year = usp.get('year');
   const pageOffset = parseInt(usp.get('page'), 10) || 1;
   const offset = (Math.max(pageOffset, 1) - 1) * 10;

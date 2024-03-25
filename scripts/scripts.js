@@ -704,6 +704,21 @@ export async function loadjQueryScript() {
   });
 }
 
+export const validateInputDate = (sDate) => {
+  const oCurrentDate = new Date();
+  const oInputDate = new Date(sDate);
+  const oCurrentDateHrs = oCurrentDate.setHours(0, 0, 0, 0);
+  const oInpuntToDateHrs = oInputDate.setHours(0, 0, 0, 0);
+
+  if (oCurrentDateHrs < oInpuntToDateHrs) {
+    const options = { month: 'numeric', day: 'numeric', year: 'numeric' };
+    const sFormattedCurrentDate = oCurrentDate.toLocaleDateString('en-US', options);
+    return sFormattedCurrentDate;
+  }
+
+  return sDate;
+};
+
 async function loadJQueryDateRangePicker() {
   const filterInput = document.querySelector('#newslist-filter-input');
   if (!filterInput) {
@@ -739,8 +754,10 @@ async function loadJQueryDateRangePicker() {
         const fullDtFrm = `${(obj.date1.getMonth() + 1)}/${obj.date1.getDate()}/${obj.date1.getFullYear()}`;
         const fullDtTo = `${(obj.date2.getMonth() + 1)}/${obj.date2.getDate()}/${obj.date2.getFullYear()}`;
         usp = new URLSearchParams();
-        usp.set('from_date', fullDtFrm);
-        usp.set('to_date', fullDtTo);
+        const sFormattedDtFrm = validateInputDate(fullDtFrm);
+        const sFormattedDtTo = validateInputDate(fullDtTo);
+        usp.set('from_date', sFormattedDtFrm);
+        usp.set('to_date', sFormattedDtTo);
         const closestForm = $filter.closest('form');
         const formUrl = closestForm.length > 0 ? closestForm.attr('action') : window.location.pathname;
         window.location.href = `${formUrl}?${usp.toString()}`;
@@ -768,8 +785,8 @@ async function loadJQueryDateRangePicker() {
   }
   const datePicker = document.querySelector('.date-picker-wrapper');
   datePicker.classList.add('date-picker-wrapper-custom');
-  const paramDateFrom = usp.get('from_date');
-  const paramDateTo = usp.get('to_date');
+  const paramDateFrom = validateInputDate(usp.get('from_date'));
+  const paramDateTo = validateInputDate(usp.get('to_date'));
   if (paramDateFrom && paramDateTo) {
     // eslint-disable-next-line no-undef
     $('#newslist-filter-input').data('dateRangePicker')
@@ -777,6 +794,14 @@ async function loadJQueryDateRangePicker() {
       .setStart(moment(paramDateFrom.toString()).format('MM/DD/YY'))
       // eslint-disable-next-line no-undef
       .setEnd(moment(paramDateTo.toString()).format('MM/DD/YY'));
+
+    if (usp.get('from_date') !== paramDateFrom || usp.get('to_date') !== paramDateTo) {
+      const oUSP = new URL(window.location);
+      oUSP.searchParams.set('from_date', paramDateFrom);
+      oUSP.searchParams.set('to_date', paramDateTo);
+      // eslint-disable-next-line no-restricted-globals
+      history.pushState({}, '', oUSP.href);
+    }
   }
 
   function displayDatePicker(e) {
