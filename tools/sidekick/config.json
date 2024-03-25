@@ -10,6 +10,14 @@
       "url": "/tools/tagger"
     },
     {
+      "id": "metadata",
+      "title": "Metadata",
+      "environments": [
+        "edit"
+      ],
+      "url": "/tools/metadata/index.html"
+    },
+    {
       "id": "preflight",
       "title": "Preflight",
       "environments": [
