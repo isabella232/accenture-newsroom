@@ -18,6 +18,33 @@
       "event": "preflight"
     },
     {
+      "id": "publishlater-container",
+      "title": "Publish Later",
+      "environments": [
+        "dev", "preview"
+      ],
+      "isContainer": true
+    },
+    {
+      "id": "publishlater",
+      "title": "Schedule this Page",
+      "environments": [
+        "dev", "preview"
+      ],
+      "event": "publishlater",
+      "containerId": "publishlater-container"
+    },
+    {
+      "id": "publishlater-all",
+      "title": "View all Schedules",
+      "environments": [
+        "dev", "preview"
+      ],
+      "isPalette": true,
+      "event": "publishlater-all",
+      "containerId": "publishlater-container"
+    },
+    {
       "id": "library",
       "title": "Library",
       "environments": [ "edit" ],

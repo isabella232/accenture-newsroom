@@ -1,0 +1,208 @@
+/* stylelint-disable selector-class-pattern */
+.aem-Dialog {
+  border: 3px solid;
+}
+
+.aem-Dialog::backdrop {
+  background-color: rgb(0 0 0 / 50%);
+}
+
+.aem-Dialog .form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.aem-Dialog .form input {
+  box-sizing: border-box;
+  border: 1px solid;
+  margin: .25rem 0;
+}
+
+.aem-Dialog .form input:hover,
+.aem-Dialog .form input:focus {
+  background-color: var(--overlay-background-color);
+}
+
+.aem-Dialog .form input[type="datetime-local"] + small {
+  align-self: end;
+  color: #888;
+}
+
+.aem-Dialog .field-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.aem-Dialog button,
+.aem-Dialog .button {
+  display: inline-block;
+  height: unset;
+  width: unset;
+  border: 1px solid;
+  padding: 12px 10px;
+  font-size: unset;
+  text-transform: unset;
+  font-family: var(--body-font-family);
+}
+
+.aem-Dialog .button.cta {
+  background-color: var(--link-color);
+  border-color: var(--link-color);
+  color: var(--background-color);
+}
+
+.aem-Dialog .button.cta:hover,
+.aem-Dialog .button.cta:focus,
+.aem-Dialog .button.cta:active {
+  opacity: .7;
+}
+
+.aem-Dialog .button.cta.disabled,
+.aem-Dialog .button.cta.disabled:hover,
+.aem-Dialog .button.cta.disabled:focus,
+.aem-Dialog .button.cta.disabled:active {
+  opacity: .3;
+}
+
+.aem-Dialog button.secondary {
+  background: none;
+  border: 1px solid var(--secondary-text-color);
+  color: var(--text-color);
+}
+
+.aem-Dialog .button.secondary:hover,
+.aem-Dialog .button.secondary:focus,
+.aem-Dialog .button.secondary:active {
+  background-color: var(--overlay-background-color);
+}
+
+.aem-Dialog header {
+  height: auto;
+  padding-right: 2rem;
+  border-bottom: 2px solid;
+}
+
+.aem-Dialog header button {
+  position: absolute;
+  display: inline-block;
+  top: 1rem;
+  right: 1rem;
+  height: 22px;
+  width: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: inherit;
+  overflow: initial;
+  text-overflow: initial;
+  white-space: initial;
+}
+
+.aem-Dialog header :is(h1, h2, h3) {
+  margin: 0 0 .25rem;
+  color: initial;
+  font-size: 1.5rem;
+}
+
+.aem-Dialog header .icon-x,
+.aem-Dialog header .icon-x::before,
+.aem-Dialog header .icon-x::after {
+  box-sizing: border-box;
+  display: block;
+  position: relative;
+  width: 20px;
+}
+
+.aem-Dialog header .icon-x::before,
+.aem-Dialog header .icon-x::after {
+  content: '';
+  position: absolute;
+  background: currentcolor;
+  top: 3px;
+  left: 1px;
+  transform: rotate(45deg);
+  transform-origin: 2px 1px;
+  width: 24px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.aem-Dialog header .icon-x {
+  height: 22px;
+}
+
+.aem-Dialog header .icon-x::after {
+  top: unset;
+  bottom: 3px;
+  transform: rotate(-45deg);
+}
+
+.aem-Dialog-content p {
+  margin: 0;
+}
+
+.aem-Dialog-content .table {
+  display: inline-block;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
+.aem-Dialog-content .table table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.aem-Dialog-content .table thead tr {
+  border: none;
+}
+
+.aem-Dialog-content .table thead th {
+  position: sticky;
+  top: 0;
+  background: white;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.aem-Dialog footer {
+  display: flex;
+  justify-content: end;
+  gap: 1rem;
+  padding: 0;
+  background: none;
+}
+
+.aem-Dialog footer button {
+  margin-bottom: 0;
+}
+
+.aem-Dialog.success {
+  border-color: green;
+}
+
+.aem-Dialog.success .button.cta {
+  background-color: green;
+  border-color: green;
+}
+
+.aem-Dialog.success .form header {
+  border-bottom-color: green;
+}
+
+.aem-Dialog.error {
+  border-color: red;
+}
+
+.aem-Dialog.error .button.cta {
+  background-color: red;
+  border-color: red;
+}
+
+.aem-Dialog.error .form header {
+  border-bottom-color: red;
+}

@@ -25,7 +25,11 @@
       "assets.adobedtm.com",
       "cdn.cookielaw.org",
       "dpm.demdex.net",
-      "api.company-target.com"
+      "api.company-target.com",
+      "login.microsoftonline.com",
+      "login.microsof.com",
+      "graph.microsoft.com",
+      "admin.hlx.page"
   ],
   "img-src": [
     "'self'",

@@ -906,6 +906,88 @@ const publishConfirmationHandler = (oSidekick) => {
   observer.observe(oShadowRoot, config);
 };
 
+let bSchedPubInProgress = false;
+async function publishLaterListener(ev) {
+  // eslint-disable-next-line import/no-cycle
+  const { publishLater } = await import('../tools/sidekick/authoring.js');
+  if (bSchedPubInProgress) {
+    // Sched still in progress
+    return;
+  }
+
+  bSchedPubInProgress = true;
+  try {
+    await publishLater(ev.detail.data);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+    bSchedPubInProgress = false;
+  } finally {
+    bSchedPubInProgress = false;
+  }
+}
+
+async function publishLaterAllListener(ev) {
+  // eslint-disable-next-line import/no-cycle
+  const { publishLaterList } = await import('../tools/sidekick/authoring.js');
+  if (bSchedPubInProgress) {
+    // Sched still in progress
+    return;
+  }
+
+  bSchedPubInProgress = true;
+  try {
+    await publishLaterList(ev.detail.data);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+    bSchedPubInProgress = false;
+  } finally {
+    bSchedPubInProgress = false;
+  }
+}
+
+async function pageInfoEnhancer() {
+  // eslint-disable-next-line import/no-cycle
+  const { enhancePageInfo } = await import('../tools/sidekick/authoring.js');
+  enhancePageInfo();
+}
+
+// Observe Plugin Info icon
+const observePluginInfo = (oSidekick) => {
+  if (!oSidekick) {
+    return;
+  }
+  const oShadowRoot = oSidekick.shadowRoot;
+  if (!oShadowRoot) {
+    return;
+  }
+
+  const infoObserver = new MutationObserver((mutations) => {
+    if (!mutations.pop().target.classList.contains('dropdown-expanded')) {
+      return;
+    }
+    pageInfoEnhancer();
+  });
+
+  // Options for the observer (which mutations to observe)
+  const config = { childList: true, subtree: true };
+  // Callback function to execute when mutations are observed
+  const callback = (_mutationList, observer) => {
+    const oPuglinInfo = oSidekick.shadowRoot.querySelector('.plugin.info');
+    if (oPuglinInfo) {
+      infoObserver.observe(oSidekick.shadowRoot.querySelector('.plugin.info'), { attributes: true, attributeFilter: ['class'] });
+      observer.disconnect();
+    }
+  };
+
+  // Create an observer instance linked to the callback function
+  const observer = new MutationObserver(callback);
+
+  // Start observing the target node for configured mutations
+  observer.observe(oShadowRoot, config);
+};
+
 // Observe helix-sidekick element if already loaded on the html body
 const helixSideKickObserver = () => {
   // const oSidekick = document.querySelector('helix-sidekick');
@@ -913,12 +995,18 @@ const helixSideKickObserver = () => {
   if (sk) {
     // sidekick already loaded
     sk.addEventListener('custom:preflight', preflightListener);
+    sk.addEventListener('custom:publishlater', publishLaterListener);
+    sk.addEventListener('custom:publishlater-all', publishLaterAllListener);
+    observePluginInfo(sk);
     publishConfirmationHandler(sk);
   } else {
     // wait for sidekick to be loaded
     document.addEventListener('sidekick-ready', () => {
       const oAddedSidekick = document.querySelector('helix-sidekick');
       oAddedSidekick.addEventListener('custom:preflight', preflightListener);
+      oAddedSidekick.addEventListener('custom:publishlater', publishLaterListener);
+      oAddedSidekick.addEventListener('custom:publishlater-all', publishLaterAllListener);
+      observePluginInfo(oAddedSidekick);
       publishConfirmationHandler(oAddedSidekick);
     }, { once: true });
   }
